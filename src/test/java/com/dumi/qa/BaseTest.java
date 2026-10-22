@@ -3,8 +3,22 @@ package com.dumi.qa;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.OutputType;
+
+import org.testng.ITestResult;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+import java.util.Map;
+import java.util.HashMap;
 
 public class BaseTest {
 
@@ -12,15 +26,79 @@ public class BaseTest {
 
     @BeforeMethod
     public void setUp() {
-        driver = new ChromeDriver();
+
+        // Create Chrome configuration
+        ChromeOptions options = new ChromeOptions();
+
+        // Disable Chrome Password Manager
+        Map<String, Object> prefs = new HashMap<>();
+
+        prefs.put("credentials_enable_service", false);
+        prefs.put("profile.password_manager_enabled", false);
+        prefs.put("profile.password_manager_leak_detection", false);
+
+        options.setExperimentalOption("prefs", prefs);
+
+        // Attempt to disable password leak warnings
+        options.addArguments(
+            "--disable-features=PasswordLeakDetection"
+        );
+
+        // Enable headless mode for GitHub Actions
+        if (Boolean.parseBoolean(
+                System.getProperty("headless", "false"))) {
+
+            options.addArguments("--headless=new");
+            options.addArguments("--window-size=1920,1080");
+        }
+
+        // Start Chrome using our configuration
+        driver = new ChromeDriver(options);
+
         driver.manage().window().maximize();
         driver.get("https://www.saucedemo.com/");
     }
 
     @AfterMethod(alwaysRun = true)
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
+    public void tearDown(ITestResult result) {
+
+        try {
+            if (result.getStatus() == ITestResult.FAILURE
+                    && driver != null) {
+
+                File screenshot = ((TakesScreenshot) driver)
+                    .getScreenshotAs(OutputType.FILE);
+
+                Path directory =
+                    Path.of("target", "screenshots");
+
+                Files.createDirectories(directory);
+
+                String fileName =
+                    result.getMethod().getMethodName()
+                    + "-" + System.currentTimeMillis()
+                    + ".png";
+
+                Files.copy(
+                    screenshot.toPath(),
+                    directory.resolve(fileName),
+                    StandardCopyOption.REPLACE_EXISTING
+                );
+
+                System.out.println(
+                    "Screenshot saved: "
+                    + directory.resolve(fileName)
+                );
+            }
+        } catch (IOException | RuntimeException e) {
+            System.err.println(
+                "Screenshot failed: " + e.getMessage()
+            );
+        } finally {
+            if (driver != null) {
+                driver.quit();
+                driver = null;
+            }
         }
     }
 }

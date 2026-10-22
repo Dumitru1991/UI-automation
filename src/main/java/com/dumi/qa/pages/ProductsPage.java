@@ -51,4 +51,17 @@ public class ProductsPage {
             ExpectedConditions.elementToBeClickable(cartLink)
         ).click();
     }
+    
+    public void removeBackpackFromCart() {
+        wait.until(
+            ExpectedConditions.elementToBeClickable(By.id("remove-sauce-labs-backpack"))
+    ).click();
+}
+
+    public boolean isCartBadgeVisible() {
+    return driver.findElements(
+        By.className("shopping_cart_badge")
+    ).size() > 0;
+}
+
 }
