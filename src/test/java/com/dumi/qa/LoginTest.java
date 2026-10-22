@@ -1,99 +1,76 @@
 
 package com.dumi.qa;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import com.dumi.qa.pages.LoginPage;
+import com.dumi.qa.pages.ProductsPage;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.time.Duration;
+public class LoginTest extends BaseTest {
 
-public class LoginTest {
-
-    // TEST 1: Valid login
     @Test
     public void validLoginTest() {
 
-        WebDriver driver = new ChromeDriver();
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("standard_user", "secret_sauce");
 
-        try {
-            driver.get("https://www.saucedemo.com/");
+        ProductsPage productsPage = new ProductsPage(driver);
 
-            driver.findElement(By.id("user-name"))
-                  .sendKeys("standard_user");
+        Assert.assertEquals(
+            productsPage.getPageTitle(),
+            "Products"
+        );
 
-            driver.findElement(By.id("password"))
-                  .sendKeys("secret_sauce");
-
-            driver.findElement(By.id("login-button"))
-                  .click();
-
-            WebDriverWait wait = new WebDriverWait(
-                driver, Duration.ofSeconds(10)
-            );
-
-            WebElement productsTitle = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(
-                    By.className("title")
-                )
-            );
-
-            Assert.assertEquals(
-                productsTitle.getText(),
-                "Products",
-                "Products page was not displayed!"
-            );
-
-            Assert.assertTrue(
-                driver.getCurrentUrl().contains("inventory.html"),
-                "User was not redirected to inventory page!"
-            );
-
-        } finally {
-            driver.quit();
-        }
+        Assert.assertTrue(
+            driver.getCurrentUrl().contains("inventory.html")
+        );
     }
 
-    // TEST 2: Invalid login
     @Test
     public void invalidLoginTest() {
 
-        WebDriver driver = new ChromeDriver();
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("invalid_user", "wrong_password");
 
-        try {
-            driver.get("https://www.saucedemo.com/");
+        Assert.assertTrue(
+            loginPage.getErrorMessage().isDisplayed()
+        );
+    }
 
-            driver.findElement(By.id("user-name"))
-                  .sendKeys("invalid_user");
+    @Test
+    public void emptyUsernameTest() {
 
-            driver.findElement(By.id("password"))
-                  .sendKeys("wrong_password");
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("", "secret_sauce");
 
-            driver.findElement(By.id("login-button"))
-                  .click();
+        Assert.assertEquals(
+            loginPage.getErrorMessage().getText(),
+            "Epic sadface: Username is required"
+        );
+    }
 
-            WebDriverWait wait = new WebDriverWait(
-                driver, Duration.ofSeconds(10)
-            );
+    @Test
+    public void emptyPasswordTest() {
 
-            WebElement error = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("[data-test='error']")
-                )
-            );
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("standard_user", "");
 
-            Assert.assertTrue(
-                error.isDisplayed(),
-                "Expected login error was not displayed!"
-            );
+        Assert.assertEquals(
+            loginPage.getErrorMessage().getText(),
+            "Epic sadface: Password is required"
+        );
+    }
 
-        } finally {
-            driver.quit();
-        }
+    @Test
+    public void lockedOutUserTest() {
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("locked_out_user", "secret_sauce");
+
+        Assert.assertTrue(
+            loginPage.getErrorMessage().getText()
+                     .contains("locked out")
+        );
     }
 }
