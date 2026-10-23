@@ -1,6 +1,6 @@
 
 package com.dumi.qa;
-
+import com.dumi.qa.config.ConfigReader;
 import com.dumi.qa.pages.LoginPage;
 import com.dumi.qa.pages.ProductsPage;
 import com.dumi.qa.data.LoginDataProvider;
@@ -13,7 +13,10 @@ public class LoginTest extends BaseTest {
     public void validLoginTest() {
 
         LoginPage loginPage = new LoginPage(driver);
-        loginPage.login("standard_user", "secret_sauce");
+        loginPage.login(
+        ConfigReader.get("username"),
+        ConfigReader.get("password")
+        );
 
         ProductsPage productsPage = new ProductsPage(driver);
 
