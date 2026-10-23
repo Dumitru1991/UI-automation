@@ -1,6 +1,6 @@
 
 package com.dumi.qa;
-
+import com.dumi.qa.config.ConfigReader;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -25,39 +25,34 @@ public class BaseTest {
     protected WebDriver driver;
 
     @BeforeMethod
-    public void setUp() {
+public void setUp() {
 
-        // Create Chrome configuration
-        ChromeOptions options = new ChromeOptions();
+    ChromeOptions options = new ChromeOptions();
 
-        // Disable Chrome Password Manager
-        Map<String, Object> prefs = new HashMap<>();
+    // Disable Chrome password manager and password leak warnings
+    Map<String, Object> prefs = new HashMap<>();
 
-        prefs.put("credentials_enable_service", false);
-        prefs.put("profile.password_manager_enabled", false);
-        prefs.put("profile.password_manager_leak_detection", false);
+    prefs.put("credentials_enable_service", false);
+    prefs.put("profile.password_manager_enabled", false);
+    prefs.put("profile.password_manager_leak_detection", false);
 
-        options.setExperimentalOption("prefs", prefs);
+    options.setExperimentalOption("prefs", prefs);
+    options.addArguments("--disable-features=PasswordLeakDetection");
 
-        // Attempt to disable password leak warnings
-        options.addArguments(
-            "--disable-features=PasswordLeakDetection"
-        );
-
-        // Enable headless mode for GitHub Actions
-        if (Boolean.parseBoolean(
-                System.getProperty("headless", "false"))) {
-
-            options.addArguments("--headless=new");
-            options.addArguments("--window-size=1920,1080");
-        }
-
-        // Start Chrome using our configuration
-        driver = new ChromeDriver(options);
-
-        driver.manage().window().maximize();
-        driver.get("https://www.saucedemo.com/");
+    // Headless mode from config.properties
+    if (ConfigReader.getBoolean("headless")) {
+        options.addArguments("--headless=new");
+        options.addArguments("--window-size=1920,1080");
     }
+
+    // Start Chrome with our options
+    driver = new ChromeDriver(options);
+
+    driver.manage().window().maximize();
+
+    // Open URL from config.properties
+    driver.get(ConfigReader.get("base.url"));
+}
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
