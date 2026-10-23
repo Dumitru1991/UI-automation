@@ -3,7 +3,7 @@ package com.dumi.qa;
 
 import com.dumi.qa.pages.LoginPage;
 import com.dumi.qa.pages.ProductsPage;
-
+import com.dumi.qa.data.LoginDataProvider;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -73,4 +73,26 @@ public class LoginTest extends BaseTest {
                      .contains("locked out")
         );
     }
+    
+@Test(dataProvider = "invalidLoginData",
+      dataProviderClass = LoginDataProvider.class)
+public void dataDrivenInvalidLoginTest(
+        String username,
+        String password,
+        String expectedError) {
+
+    LoginPage loginPage = new LoginPage(driver);
+
+    loginPage.login(username, password);
+
+    String actualError =
+        loginPage.getErrorMessage().getText();
+
+    Assert.assertTrue(
+        actualError.contains(expectedError),
+        "Expected error containing: " + expectedError
+        + " but got: " + actualError
+    );
+}
+
 }
