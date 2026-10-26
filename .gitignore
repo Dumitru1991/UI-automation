@@ -5,3 +5,5 @@ target/
 .vscode/
 *.log
 .allure/
+# Allure generated test results
+allure-results/
