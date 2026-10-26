@@ -6,7 +6,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.OutputType;
-
+import io.qameta.allure.Allure;
+import java.io.ByteArrayInputStream;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.testng.ITestResult;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
@@ -91,6 +94,13 @@ public void setUp() {
             );
         } finally {
             if (driver != null) {
+            byte[] screenshot = ((TakesScreenshot) driver)
+            .getScreenshotAs(OutputType.BYTES);
+
+            Allure.attachment(
+            "Failure Screenshot",
+            new ByteArrayInputStream(screenshot)
+                );} {
                 driver.quit();
                 driver = null;
             }
