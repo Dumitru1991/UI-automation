@@ -64,4 +64,10 @@ public class ProductsPage {
     ).size() > 0;
 }
 
+public String getBackpackButtonText() {
+    return wait.until(
+        ExpectedConditions.visibilityOfElementLocated(backpackButton)
+    ).getText();
+}
+
 }
