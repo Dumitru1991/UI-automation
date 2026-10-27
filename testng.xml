@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="SauceDemo Automation Suite">
-    <test name="SauceDemo Website UI Tests">
+<suite name="UI Automation Suite">
+    <test name="SauceDemo UI Tests">
         <packages>
             <package name="com.dumi.qa"/>
         </packages>
