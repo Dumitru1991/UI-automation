@@ -4,14 +4,15 @@ package com.dumi.qa.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
 public class LoginPage {
 
     private final WebDriver driver;
+    private final WebDriverWait wait;
 
     private final By usernameField = By.id("user-name");
     private final By passwordField = By.id("password");
@@ -20,21 +21,26 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void login(String username, String password) {
-        driver.findElement(usernameField).sendKeys(username);
-        driver.findElement(passwordField).sendKeys(password);
-        driver.findElement(loginButton).click();
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(usernameField)
+        ).sendKeys(username);
+
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(passwordField)
+        ).sendKeys(password);
+
+        wait.until(
+                ExpectedConditions.elementToBeClickable(loginButton)
+        ).click();
     }
 
     public WebElement getErrorMessage() {
-        WebDriverWait wait = new WebDriverWait(
-            driver, Duration.ofSeconds(10)
-        );
-
         return wait.until(
-            ExpectedConditions.visibilityOfElementLocated(errorMessage)
+                ExpectedConditions.visibilityOfElementLocated(errorMessage)
         );
     }
 }
