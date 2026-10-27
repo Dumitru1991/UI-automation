@@ -137,4 +137,82 @@ public class CheckoutTest extends BaseTest {
             "The order confirmation message should be displayed."
         );
     }
+    
+    @Test(
+        testName = "Last name is required",
+        description = "Verify checkout rejects a missing last name",
+        groups = {"regression"}
+    )
+    @Story("Required checkout fields")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Checkout should display an error when the last name is missing.")
+    public void shouldRequireLastNameDuringCheckout() {
+        CartPage cartPage = openCartWithBackpack();
+        cartPage.clickCheckout();
+
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        checkoutPage.enterCustomerDetails("Dumi", "", "550001");
+        checkoutPage.clickContinue();
+
+        Assert.assertEquals(
+            checkoutPage.getErrorMessage(),
+            "Error: Last Name is required",
+            "An error should be displayed when the last name is missing."
+        );
+    }
+
+    @Test(
+        testName = "Postal code is required",
+        description = "Verify checkout rejects a missing postal code",
+        groups = {"regression"}
+    )
+    @Story("Required checkout fields")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Checkout should display an error when the postal code is missing.")
+    public void shouldRequirePostalCodeDuringCheckout() {
+        CartPage cartPage = openCartWithBackpack();
+        cartPage.clickCheckout();
+
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        checkoutPage.enterCustomerDetails("Dumi", "Test", "");
+        checkoutPage.clickContinue();
+
+        Assert.assertEquals(
+            checkoutPage.getErrorMessage(),
+            "Error: Postal Code is required",
+            "An error should be displayed when the postal code is missing."
+        );
+    }
+
+
+    @Test(
+        testName = "Verify backpack in checkout overview",
+        description = "Verify the correct product and price appear in the checkout overview",
+        groups = {"smoke", "regression"}
+    )
+    @Story("Order overview")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("The checkout overview should display the Sauce Labs Backpack at $29.99.")
+    public void shouldVerifyBackpackInCheckoutOverview() {
+        CartPage cartPage = openCartWithBackpack();
+        cartPage.clickCheckout();
+
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        checkoutPage.enterCustomerDetails("Dumi", "Test", "550001");
+        checkoutPage.clickContinue();
+
+        Assert.assertEquals(
+            checkoutPage.getOverviewItemName(),
+            "Sauce Labs Backpack",
+            "The checkout overview should display the correct product."
+        );
+
+        Assert.assertEquals(
+            checkoutPage.getOverviewItemPrice(),
+            "$29.99",
+            "The checkout overview should display the correct product price."
+        );
+    }
+
+
 }

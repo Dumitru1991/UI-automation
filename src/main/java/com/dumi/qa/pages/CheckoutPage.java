@@ -62,4 +62,22 @@ public class CheckoutPage {
             )
         ).getText();
     }
+    
+    
+    public String getOverviewItemName() {
+        return wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.className("inventory_item_name")
+            )
+        ).getText();
+    }
+
+    public String getOverviewItemPrice() {
+        return wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.className("inventory_item_price")
+            )
+        ).getText();
+    }
+
 }
