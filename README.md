@@ -1,4 +1,4 @@
-# UI Automation — SauceDemo
+# UI Automation — DEMO Project
 
 A UI test automation framework built with Java, Selenium WebDriver, TestNG, Maven, and Allure. The project automates key user journeys on the [SauceDemo demo website](https://www.saucedemo.com/).
 
